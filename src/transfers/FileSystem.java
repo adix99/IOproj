@@ -1,4 +1,4 @@
-package przelew;
+package transfers;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;

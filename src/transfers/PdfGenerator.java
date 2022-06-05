@@ -1,4 +1,4 @@
-package przelew;
+package transfers;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -11,8 +11,11 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+public interface PdfGenerator{
+    public void generatePDF(String directory) throws IOException;
+}
 
-public class PdfGenerator {
+class PdfGeneratorStandard implements PdfGenerator {
     protected final String title = "Potwierdzenie wykonania operacji";
     protected final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
     protected final LocalDateTime now = LocalDateTime.now();
@@ -30,8 +33,8 @@ public class PdfGenerator {
     protected float dateFontSize = 14;
     protected float dataFontSize = 12;
 
-    public PdfGenerator(){}
-    public PdfGenerator(String operationDate, Map<String, String> senderData, Map<String, String> receiverData, Map<String,String> transferData){
+    public PdfGeneratorStandard(){}
+    public PdfGeneratorStandard(String operationDate, Map<String, String> senderData, Map<String, String> receiverData, Map<String,String> transferData){
         fileName = "Potwierdzenie_"+transferData.get("typ")+"_"+senderData.get("nazwa odbiorcy")+senderData.get("nazwa odbiorcy cd")+"_"+generationDate+".pdf";
         data = new LinkedHashMap<>();
         data.put("Typ operacji: ",transferData.get("typ"));
@@ -60,20 +63,11 @@ public class PdfGenerator {
         }
         data.put("Odbiorca: ",receiver);
         data.put("Kwota transakcji: ",transferData.get("kwota")+" "+transferData.get("waluta"));
-        if(!transferData.get("oplata").equals("0.00")){
-            double totalAmount = 0;
-            totalAmount+=Double.parseDouble(transferData.get("oplata"));
-            totalAmount+=Double.parseDouble(transferData.get("kwota"));
-            data.put("Kwota zaksięgowana: ","-"+String.valueOf(totalAmount)+" "+"PLN");
-
-        }
-        else {
-            data.put("Kwota zaksięgowana: ", "-" + transferData.get("kwota")+" "+"PLN");
-        }
+        data.put("Kwota zaksięgowana: ", "-" + String.format("%.2f",Double.parseDouble(transferData.get("kwotaPLN")))+" "+"PLN");
         data.put("Tytuł: ",transferData.get("tytul"));
     }
 
-    void generatePDF(String directory) throws IOException {
+    public void generatePDF(String directory) throws IOException {
         pdfDocument = new PDDocument();
         pdfPage = new PDPage();
         pdfDocument.addPage(pdfPage);
@@ -129,17 +123,72 @@ public class PdfGenerator {
     }
 }
 
-class PdfGeneratorBLIK extends PdfGenerator{
-    public PdfGeneratorBLIK(String operationDate, Map<String, String> senderData, String receiverData, Map<String,String> transferData) throws IOException {
+class PdfGeneratorStandingOrder extends PdfGeneratorStandard implements PdfGenerator{
+    public PdfGeneratorStandingOrder(String operationDate, Map<String, String> senderData, Map<String, String> receiverData, Map<String,String> transferData) {
+        fileName = "Potwierdzenie_"+transferData.get("typ")+"_"+senderData.get("nazwa odbiorcy")+senderData.get("nazwa odbiorcy cd")+"_"+generationDate+".pdf";
+        data = new LinkedHashMap<>();
+        data.put("Typ operacji: ",transferData.get("typ"));
+        data.put("Data zlecenia: ", operationDate);
+        data.put("Rozpoczęcie obowiązywania zlecenia: ", transferData.get("startdata"));
+        if(transferData.containsKey("enddata"))  data.put("Zakończenie obowiązywania zlecenia: ", transferData.get("enddata"));
+        data.put("Z rachunku: ",senderData.get("nr konta"));
+        String sender = "";
+        sender+=senderData.get("nazwa odbiorcy");
+        sender = sender+" "+senderData.get("nazwa odbiorcy cd");
+        if(senderData.containsKey("miejscowosc")){
+            sender = sender+" "+senderData.get("miejscowosc");
+            sender = sender+" "+senderData.get("kod pocztowy");
+            sender = sender+" "+"ul."+senderData.get("ulica");
+            sender = sender+" "+senderData.get("nr domu");
+        }
+        data.put("Zleceniodawca: ",sender);
+        data.put("Na rachunek: ",receiverData.get("nr konta"));
+        String receiver = "";
+        receiver+=receiverData.get("nazwa odbiorcy");
+        receiver = receiver+" "+receiverData.get("nazwa odbiorcy cd");
+        if(receiverData.containsKey("miejscowosc")){
+            receiver = receiver+" "+receiverData.get("miejscowosc");
+            receiver = receiver+" "+receiverData.get("kod pocztowy");
+            receiver = receiver+" "+"ul."+receiverData.get("ulica");
+            receiver = receiver+" "+receiverData.get("nr domu");
+        }
+        data.put("Odbiorca: ",receiver);
+        data.put("Kwota transakcji: ",transferData.get("kwota")+" "+transferData.get("waluta"));
+        data.put("Kwota zaksięgowana: ", "-" + String.format("%.2f",Double.parseDouble(transferData.get("kwotaPLN")))+" "+"PLN");
+        data.put("Tytuł: ",transferData.get("tytul"));
+    }
+}
+
+class PdfGeneratorBLIK extends PdfGeneratorStandard implements PdfGenerator{
+    public PdfGeneratorBLIK(String operationDate, Map<String, String> senderData, Map<String,String> receiverData, Map<String,String> transferData){
         fileName = "Potwierdzenie_"+"BLIK"+"_"+senderData.get("nazwa odbiorcy")+senderData.get("nazwa odbiorcy cd")+"_"+generationDate+".pdf";
         data = new LinkedHashMap<>();
         data.put("Typ operacji: ",transferData.get("typ"));
         data.put("Data księgowania: ", operationDate);
         data.put("Data transakcji: ", operationDate);
         data.put("Z rachunku: ",senderData.get("nr konta"));
-        data.put("Płacący: ",senderData.get("nazwa odbiorcy")+senderData.get("nazwa odbiorcy cd"));
+        data.put("Płacący: ",senderData.get("nazwa odbiorcy")+" "+senderData.get("nazwa odbiorcy cd"));
+        data.put("Na nr. telefonu: ",receiverData.get("nr telefonu"));
+        data.put("Odbiorca: ",receiverData.get("nazwa odbiorcy")+" "+receiverData.get("nazwa odbiorcy cd"));
         data.put("Kwota transakcji: ",transferData.get("kwota")+" "+"PLN");
         data.put("Kwota zaksięgowana: ","-"+transferData.get("kwota")+" "+"PLN");
-        data.put("Miejsce transakcji: ",receiverData);
+        data.put("Tytuł: ",transferData.get("tytul"));
+    }
+}
+
+class PdfGeneratorOwn extends PdfGeneratorStandard implements PdfGenerator{
+    public PdfGeneratorOwn(String operationDate, Map<String, String> senderData, Map<String,String> receiverData, Map<String,String> transferData){
+        fileName = "Potwierdzenie_"+transferData.get("typ")+"_"+senderData.get("nazwa odbiorcy")+senderData.get("nazwa odbiorcy cd")+"_"+generationDate+".pdf";
+        data = new LinkedHashMap<>();
+        data.put("Typ operacji: ",transferData.get("typ"));
+        data.put("Data księgowania: ", operationDate);
+        data.put("Data transakcji: ", operationDate);
+        data.put("Z rachunku: ",senderData.get("nr konta"));
+        data.put("Płacący: ",senderData.get("nazwa odbiorcy")+" "+senderData.get("nazwa odbiorcy cd"));
+        data.put("Na rachunek: ",receiverData.get("nr konta"));
+        data.put("Odbiorca: ",receiverData.get("nazwa odbiorcy")+" "+receiverData.get("nazwa odbiorcy cd"));
+        data.put("Kwota transakcji: ",transferData.get("kwota")+" "+"PLN");
+        data.put("Kwota zaksięgowana: ","-"+transferData.get("kwota")+" "+"PLN");
+        data.put("Tytuł: ",transferData.get("tytul"));
     }
 }

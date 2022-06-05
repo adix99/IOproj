@@ -1,0 +1,14 @@
+<component name="libraryTable">
+  <library name="org.javamoney.moneta:moneta-convert-ecb:1.4.2" type="repository">
+    <properties maven-id="org.javamoney.moneta:moneta-convert-ecb:1.4.2" />
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/javamoney/moneta/moneta-convert-ecb/1.4.2/moneta-convert-ecb-1.4.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/javamoney/moneta/moneta-core/1.4.2/moneta-core-1.4.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/org/javamoney/moneta/moneta-convert/1.4.2/moneta-convert-1.4.2.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/money/money-api/1.1/money-api-1.1.jar!/" />
+      <root url="jar://$MAVEN_REPOSITORY$/javax/annotation/javax.annotation-api/1.3.2/javax.annotation-api-1.3.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

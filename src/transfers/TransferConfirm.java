@@ -1,4 +1,4 @@
-package przelew;
+package transfers;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -25,6 +25,8 @@ public class TransferConfirm {
     private JLabel chooseFolderLabel;
     private JTree fileTree;
     private JScrollPane fileScrollPane;
+    private String transferPanelTitle;
+    private JLabel transferPanelTitleLabel;
     private KeyAdapter numbersOnly;
     private boolean isTransferConfirmation;
     private boolean confirmButtonValid;
@@ -36,6 +38,7 @@ public class TransferConfirm {
     private Map<String,String> senderData;
     private Map<String,String> receiverData;
     private Map<String,String> transferData;
+    private PdfGenerator pdfGenerator;
 
     public TransferConfirm(MainFrame mainFrame, JPanel transferNextStepPanel, Map<String,String> senderData1, Map<String,String>receiverData1, Map<String,String> transferData1){
         frame = mainFrame;
@@ -43,7 +46,12 @@ public class TransferConfirm {
         senderData=senderData1;
         receiverData = receiverData1;
         transferData = transferData1;
-
+        if(transferData.get("typ").equals("Przelew BLIK na telefon")) transferPanelTitle = transferData.get("typ");
+        else {
+            String[] arr = transferData.get("typ").split("\\s+");
+            transferPanelTitle = arr[0] + " " + arr[1];
+        }
+        transferPanelTitleLabel.setText(transferPanelTitle);
         fileScrollPane.setVisible(false);
         chooseFolderLabel.setVisible(false);
         fileTree.setModel(new FileSystem());
@@ -133,9 +141,12 @@ public class TransferConfirm {
                             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
                             LocalDateTime now = LocalDateTime.now();
                             String generationDate = dtf.format(now);
-                            PdfGenerator pdf = new PdfGenerator(generationDate,senderData,receiverData,transferData);
+                            if(transferPanelTitle.equals("Zlecenie stałe")) pdfGenerator = new PdfGeneratorStandingOrder(generationDate,senderData,receiverData,transferData);
+                            else if(transferPanelTitle.equals("Przelew BLIK na telefon")) pdfGenerator = new PdfGeneratorBLIK(generationDate,senderData,receiverData,transferData);
+                            else if(transferPanelTitle.equals("Przelew własny")) pdfGenerator = new PdfGeneratorOwn(generationDate,senderData,receiverData,transferData);
+                            else pdfGenerator = new PdfGeneratorStandard(generationDate,senderData,receiverData,transferData);
                             try {
-                                pdf.generatePDF(path);
+                                pdfGenerator.generatePDF(path);
                             } catch (IOException ioException) {
                                 ioException.printStackTrace();
                             }

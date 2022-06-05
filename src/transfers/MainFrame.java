@@ -1,4 +1,4 @@
-package przelew;
+package transfers;
 
 import javax.swing.*;
 

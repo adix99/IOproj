@@ -1,88 +1,98 @@
-package przelew;
+package transfers;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
+import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class Transfer extends JFrame{
-    private JTextField accountNumberTxt;
-    private JTextField transferAmount1Txt;
-    private JComboBox receiverNameCombo;
-    private JTextField receiverName1Txt;
-    private JTextField receiverName2Txt;
-    private JTextField townNameTxt;
-    private JTextField streetNameTxt;
-    private JTextField postcode1Txt;
-    private JTextField postcode2Txt;
-    private JTextField streetNumber1Txt;
-    private JTextField streetNumber2Txt;
-    private JPanel transferPanel;
-    private JLabel receiverName1Label;
-    private JLabel receiverName2Label;
-    private JTextField transferAmount2Txt;
-    private JTextArea transferTitleTextArea;
-    private JRadioButton expressTransferRadioButton;
-    private JButton nextButton;
-    private JButton cancelButton;
-    private JLabel accountNumberWarning;
-    private JLabel availableFundsLabel;
-    private JLabel transferAmountWarning;
-    private JLabel expressTransferWarning;
-    private JLabel postcodeWarning;
-    private JLabel transferTitleWarning;
-    private JLabel receiverName1Warning;
-    private JLabel receiverName2Warning;
-    private JLabel townNameWarning;
-    private JLabel streetNameWarning;
-    private JLabel streetNumberWarning;
-    private JTextField countryNameTxt;
-    private JLabel countryNameLabel;
-    private JLabel countryNameWarning;
-    private JRadioButton receiverAddressRadioButton;
-    private JLabel townNameLabel;
-    private JLabel streetNameLabel;
-    private JLabel postcodeLabel;
-    private JLabel streetNumberLabel;
-    private JLabel postcodeDashLabel;
-    private JLabel streetNumberSlashLabel;
-    private JLabel panelTitleLabel;
-    private JLabel accountNumberCountryLabel;
-    private JLabel transferAmountCurrencyLabel;
-    private JLabel[] warnings = {accountNumberWarning, transferAmountWarning, expressTransferWarning, postcodeWarning, transferTitleWarning, receiverName1Warning, receiverName2Warning, townNameWarning, streetNameWarning, streetNumberWarning};
-    boolean isCompany;
-    boolean isPerson;
-    boolean isAccountNumberValid;
-    boolean isAmountValid;
-    boolean isPostCodeValid;
-    boolean isPayment;
-    private KeyAdapter numbersOnly;
-    private double transferAmount1 = 0.0;
-    private double transferAmount2 = 0.0;
-    private double finalTransferAmount = 0.0;
-    private Map<String,String> receiverData;
-    private Map<String,String> transferData;
-    boolean buttonValid;
-    private Vector<Boolean> validation;
-    boolean isAddress;
-    private Map<String,String> senderData;
-    private double senderAmount;
-    private MainFrame frame;
-
-    public Transfer(MainFrame mainFrame, Map<String, String> senderData1, double senderAmount1) {
+public class StandardTransfer implements Transfer{
+    protected JTextField accountNumberTxt;
+    protected JTextField transferAmount1Txt;
+    protected JComboBox receiverNameCombo;
+    protected JTextField receiverName1Txt;
+    protected JTextField receiverName2Txt;
+    protected JTextField townNameTxt;
+    protected JTextField streetNameTxt;
+    protected JTextField postcode1Txt;
+    protected JTextField postcode2Txt;
+    protected JTextField streetNumber1Txt;
+    protected JTextField streetNumber2Txt;
+    protected JPanel transferPanel1;
+    protected JLabel receiverName1Label;
+    protected JLabel receiverName2Label;
+    protected JTextField transferAmount2Txt;
+    protected JTextArea transferTitleTextArea;
+    protected JRadioButton expressTransferRadioButton;
+    protected JButton nextButton;
+    protected JButton cancelButton;
+    protected JLabel accountNumberWarning;
+    protected JLabel availableFundsLabel;
+    protected JLabel transferAmountWarning;
+    protected JLabel expressTransferWarning;
+    protected JLabel postcodeWarning;
+    protected JLabel transferTitleWarning;
+    protected JLabel receiverName1Warning;
+    protected JLabel receiverName2Warning;
+    protected JLabel townNameWarning;
+    protected JLabel streetNameWarning;
+    protected JLabel streetNumberWarning;
+    protected JTextField countryNameTxt;
+    protected JLabel countryNameLabel;
+    protected JLabel countryNameWarning;
+    protected JRadioButton receiverAddressRadioButton;
+    protected JLabel townNameLabel;
+    protected JLabel streetNameLabel;
+    protected JLabel postcodeLabel;
+    protected JLabel streetNumberLabel;
+    protected JLabel postcodeDashLabel;
+    protected JLabel streetNumberSlashLabel;
+    protected JLabel panelTitleLabel;
+    protected JLabel accountNumberCountryLabel;
+    protected JLabel transferAmountCurrencyLabel;
+    protected JComboBox currencyComboBox;
+    protected JLabel accountNumberLabel;
+    protected JLabel currencyInfoLabel;
+    protected JComboBox accountNumberCountryComboBox;
+    protected JLabel[] warnings = {accountNumberWarning, transferAmountWarning, expressTransferWarning, postcodeWarning, transferTitleWarning, receiverName1Warning, receiverName2Warning, townNameWarning, streetNameWarning, streetNumberWarning};
+    protected boolean isCompany;
+    protected boolean isPerson;
+    protected boolean isAccountNumberValid;
+    protected boolean isAmountValid;
+    protected boolean isPostCodeValid;
+    protected boolean isPayment;
+    protected KeyAdapter numbersOnly;
+    protected double transferAmount1 = 0.0;
+    protected double transferAmount2 = 0.0;
+    protected double finalTransferAmount = 0.0;
+    protected Map<String,String> receiverData;
+    protected Map<String,String> transferData;
+    protected boolean buttonValid;
+    protected Vector<Boolean> validation;
+    protected boolean isAddress;
+    protected Map<String,String> senderData;
+    protected double senderAmount;
+    protected String countryISO;
+    protected boolean isCountry;
+    protected MainFrame frame;
+    public StandardTransfer(){}
+    public StandardTransfer(MainFrame mainFrame, Map<String, String> senderData1, double senderAmount1) throws IOException, FontFormatException {
+        isCountry = false;
+        countryISO = "PL ";
         frame = mainFrame;
         senderData = senderData1;
         senderAmount = senderAmount1;
         receiverData = new HashMap<>();
         transferData = new HashMap<>();
         numbersOnly = new OnlyNumbers().getKeyAdapter();
-
         setLabels();
-        setReceiverNameCombo(receiverNameCombo);
+        setCurrency();
+        setReceiverNameCombo();
         setTransferAmountTxt(transferAmount1Txt);
         setTransferAmountTxt(transferAmount2Txt);
         setPostcodeTxt(postcode1Txt);
@@ -91,12 +101,19 @@ public class Transfer extends JFrame{
         setExpressTransferRadioButton(expressTransferRadioButton,senderAmount1);
         setReceiverAddressRadioButton(receiverAddressRadioButton);
         setNextButton(nextButton);
-
-        frame.getjFrame().setContentPane(transferPanel);
+        transferPanel1.revalidate();
+        frame.getjFrame().revalidate();
+        frame.getjFrame().setContentPane(transferPanel1);
         frame.getjFrame().setVisible(true);
     }
 
+    void setCurrency(){
+        transferData.put("waluta","PLN");
+    }
     void setLabels(){
+        currencyInfoLabel.setVisible(false);
+        accountNumberCountryComboBox.setVisible(false);
+        currencyComboBox.setVisible(false);
         countryNameLabel.setVisible(false);
         countryNameTxt.setVisible(false);
         countryNameWarning.setVisible(false);
@@ -120,7 +137,7 @@ public class Transfer extends JFrame{
         availableFundsLabel.setText(String.valueOf(senderAmount));
     }
 
-    void setReceiverNameCombo(JComboBox receiverNameCombo){
+    void setReceiverNameCombo(){
         receiverNameCombo.addActionListener(event -> {
             JComboBox c = (JComboBox) event.getSource();
             receiverName1Warning.setVisible(false);
@@ -131,7 +148,7 @@ public class Transfer extends JFrame{
                     receiverName2Label.setVisible(false);
                     receiverName2Txt.setVisible(false);
                 }
-                receiverName1Label.setText("Nazwa firmy:");
+                receiverName1Label.setText("Nazwa firmy");
                 receiverName1Label.setVisible(true);
                 receiverName1Txt.setVisible(true);
                 receiverName2Warning.setVisible(false);
@@ -141,7 +158,7 @@ public class Transfer extends JFrame{
                     receiverName1Label.setVisible(false);
                     receiverName1Txt.setVisible(false);
                 }
-                receiverName1Label.setText("Imię:");
+                receiverName1Label.setText("Imię");
                 receiverName1Label.setVisible(true);
                 receiverName1Txt.setVisible(true);
                 receiverName2Label.setVisible(true);
@@ -196,6 +213,7 @@ public class Transfer extends JFrame{
             @Override
             public void itemStateChanged(ItemEvent e) {
                 int state = e.getStateChange();
+                System.out.println(finalTransferAmount);
                 if (state == ItemEvent.SELECTED) {
                     finalTransferAmount += 5.00;
                     if (finalTransferAmount > senderAmount) {
@@ -257,6 +275,10 @@ public class Transfer extends JFrame{
             public void itemStateChanged(ItemEvent e) {
                 int state = e.getStateChange();
                 if (state == ItemEvent.SELECTED) {
+                    if(isCountry){
+                        countryNameLabel.setVisible(true);
+                        countryNameTxt.setVisible(true);
+                    }
                     townNameTxt.setVisible(true);
                     townNameLabel.setVisible(true);
                     postcode1Txt.setVisible(true);
@@ -345,6 +367,16 @@ public class Transfer extends JFrame{
                     }
                 }
                 if(isAddress) {
+                    if(isCountry){
+                        if(countryNameTxt.getText().length()==0){
+                            countryNameWarning.setVisible(true);
+                            validation.add(false);
+                        }
+                        else {
+                            countryNameWarning.setVisible(false);
+                            validation.add(true);
+                        }
+                    }
                     if (townNameTxt.getText().length() == 0) {
                         townNameWarning.setVisible(true);
                         validation.add(false);
@@ -392,7 +424,11 @@ public class Transfer extends JFrame{
                     transferTitleWarning.setVisible(false);
                     validation.add(true);
                 }
-                if(finalTransferAmount>senderAmount) validation.add(false);
+                if(finalTransferAmount>senderAmount){
+                    transferAmountWarning.setText("Nie masz wystarczających środków");
+                    transferAmountWarning.setVisible(true);
+                    validation.add(false);
+                }
                 if(!isAccountNumberValid) validation.add(false);
                 buttonValid = !validation.contains(false);
                 if(buttonValid){
@@ -407,11 +443,12 @@ public class Transfer extends JFrame{
                         ++j;
                         if(j%4==0) result.append(" ");
                     }
-                    receiverData.put("nr konta",String.valueOf(result));
+                    receiverData.put("nr konta",countryISO+String.valueOf(result));
                     receiverData.put("nazwa odbiorcy", receiverName1Txt.getText());
                     if(receiverNameCombo.getSelectedItem() == "Osoba") receiverData.put("nazwa odbiorcy cd", receiverName2Txt.getText());
                     else receiverData.put("nazwa odbiorcy cd","");
                     if(isAddress) {
+                        if(isCountry) receiverData.put("kraj",countryNameTxt.getText());
                         receiverData.put("miejscowosc", townNameTxt.getText());
                         receiverData.put("kod pocztowy", postcode1Txt.getText() + "-" + postcode2Txt.getText());
                         receiverData.put("ulica", streetNameTxt.getText());
@@ -421,16 +458,16 @@ public class Transfer extends JFrame{
                     }
                     transferData.put("tytul", transferTitleTextArea.getText());
                     transferData.put("kwota", transferAmount1Txt.getText()+"."+ transferAmount2Txt.getText());
+                    transferData.put("kwotaPLN", String.valueOf(finalTransferAmount));
                     if(isPayment){
                         transferData.put("oplata","5.00");
-                        transferData.put("typ","Przelew krajowy natychmiastowy");
+                        transferData.put("typ",panelTitleLabel.getText()+" natychmiastowy");
                     }
                     else{
                         transferData.put("oplata","0.00");
-                        transferData.put("typ","Przelew krajowy zwykły");
+                        transferData.put("typ",panelTitleLabel.getText()+" zwykły");
                     }
-                    transferData.put("waluta","PLN");
-                    TransferNextStep pCd = new TransferNextStep(frame, transferPanel,senderData,receiverData, transferData,senderAmount);
+                    TransferNextStep pCd = new TransferNextStep(frame, transferPanel1,senderData,receiverData, transferData,senderAmount);
                     frame.getjFrame().setContentPane(pCd.getTransferNextStepPanel());
                     frame.getjFrame().setVisible(true);
                 }
