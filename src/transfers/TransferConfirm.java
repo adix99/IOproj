@@ -7,6 +7,7 @@ import timer.MouseAction;
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -150,10 +151,42 @@ public class TransferConfirm {
                             DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
                             LocalDateTime now = LocalDateTime.now();
                             String generationDate = dtf.format(now);
-                            if(transferPanelTitle.equals("Zlecenie stałe")) pdfGenerator = new PdfGeneratorStandingOrder(generationDate,senderData,receiverData,transferData);
-                            else if(transferPanelTitle.equals("Przelew BLIK na telefon")) pdfGenerator = new PdfGeneratorBLIK(generationDate,senderData,receiverData,transferData);
-                            else if(transferPanelTitle.equals("Przelew własny")) pdfGenerator = new PdfGeneratorOwn(generationDate,senderData,receiverData,transferData);
-                            else pdfGenerator = new PdfGeneratorStandard(generationDate,senderData,receiverData,transferData);
+                            if(transferPanelTitle.equals("Zlecenie stałe")) {
+                                try {
+                                    pdfGenerator = new PdfFactory(generationDate,senderData,receiverData,transferData).getPdfGenerator(PdfFactory.PdfType.ZLECENIESTALE);
+                                } catch (IOException ioException) {
+                                    ioException.printStackTrace();
+                                } catch (FontFormatException fontFormatException) {
+                                    fontFormatException.printStackTrace();
+                                }
+                            }
+                            else if(transferPanelTitle.equals("Przelew BLIK na telefon")) {
+                                try {
+                                    pdfGenerator = new PdfFactory(generationDate,senderData,receiverData,transferData).getPdfGenerator(PdfFactory.PdfType.BLIK);
+                                } catch (IOException ioException) {
+                                    ioException.printStackTrace();
+                                } catch (FontFormatException fontFormatException) {
+                                    fontFormatException.printStackTrace();
+                                }
+                            }
+                            else if(transferPanelTitle.equals("Przelew własny")) {
+                                try {
+                                    pdfGenerator = new PdfFactory(generationDate,senderData,receiverData,transferData).getPdfGenerator(PdfFactory.PdfType.WLASNY);
+                                } catch (IOException ioException) {
+                                    ioException.printStackTrace();
+                                } catch (FontFormatException fontFormatException) {
+                                    fontFormatException.printStackTrace();
+                                }
+                            }
+                            else {
+                                try {
+                                    pdfGenerator = new PdfFactory(generationDate,senderData,receiverData,transferData).getPdfGenerator(PdfFactory.PdfType.STANDARD);
+                                } catch (IOException ioException) {
+                                    ioException.printStackTrace();
+                                } catch (FontFormatException fontFormatException) {
+                                    fontFormatException.printStackTrace();
+                                }
+                            }
                             try {
                                 pdfGenerator.generatePDF(path);
                             } catch (IOException ioException) {
