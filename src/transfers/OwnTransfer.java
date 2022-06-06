@@ -1,6 +1,8 @@
 package transfers;
 
 import mainFrame.MainFrame;
+import timer.AppTimer;
+import timer.MouseAction;
 
 import javax.swing.*;
 import javax.swing.event.MenuEvent;
@@ -28,6 +30,8 @@ public class OwnTransfer implements Transfer{
     private JLabel receiverInfoLabel;
     private JLabel receiverLabel;
     private JLabel senderAccountWarning;
+    private JPanel timerPanel;
+    private JLabel timeLabel;
     private Font customFont;
     private JMenu jMenu;
     private boolean isMainAccountSelected;
@@ -45,6 +49,10 @@ public class OwnTransfer implements Transfer{
     private String choosedAcount="";
 
     public OwnTransfer(MainFrame mainFrame, Map<String,String> senderData1) {
+        frame = mainFrame;
+        AppTimer appTimer = new AppTimer(timeLabel,frame);
+        OwnTransferPanel.addMouseMotionListener(new MouseAction(appTimer));
+        appTimer.start();
         try {
             setFonts();
         } catch (IOException e) {
@@ -57,7 +65,6 @@ public class OwnTransfer implements Transfer{
         receiverData = new HashMap<>();
         transferData = new HashMap<>();
         transferData.put("waluta","PLN");
-        frame = mainFrame;
         setLabels();
         setjMenu();
         setTransferAmountTxt(transferAmount1Txt);

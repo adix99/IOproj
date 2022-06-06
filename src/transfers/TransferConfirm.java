@@ -1,6 +1,8 @@
 package transfers;
 
 import mainFrame.MainFrame;
+import timer.AppTimer;
+import timer.MouseAction;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -29,6 +31,8 @@ public class TransferConfirm {
     private JScrollPane fileScrollPane;
     private String transferPanelTitle;
     private JLabel transferPanelTitleLabel;
+    private JLabel timeLabel;
+    private JPanel timerPanel;
     private KeyAdapter numbersOnly;
     private boolean isTransferConfirmation;
     private boolean confirmButtonValid;
@@ -44,6 +48,9 @@ public class TransferConfirm {
 
     public TransferConfirm(MainFrame mainFrame, JPanel transferNextStepPanel, Map<String,String> senderData1, Map<String,String>receiverData1, Map<String,String> transferData1){
         frame = mainFrame;
+        AppTimer appTimer = new AppTimer(timeLabel,frame);
+        transferConfirmPanel.addMouseMotionListener(new MouseAction(appTimer));
+        appTimer.start();
         otherPanel = transferNextStepPanel;
         senderData=senderData1;
         receiverData = receiverData1;

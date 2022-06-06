@@ -2,6 +2,8 @@ package transfers;
 
 import com.toedter.calendar.JDateChooser;
 import mainFrame.MainFrame;
+import timer.AppTimer;
+import timer.MouseAction;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +37,8 @@ public class StandingOrderNextStep {
     private JLabel endPaymentWarning;
     private JLabel timeUnitsWarning;
     private JLabel timeUnitsWarning2;
+    private JPanel timerPanel;
+    private JLabel timeLabel;
     private JDateChooser dateChooserFrom;
     private JDateChooser dateChooserTo;
     private boolean isEndDateSelected;
@@ -55,11 +59,14 @@ public class StandingOrderNextStep {
     private double senderAmount;
 
     public StandingOrderNextStep(MainFrame mainFrame, JPanel standingOrderPanel, Map<String,String> senderData1, Map<String,String> receiverData1, Map<String,String> transferData1) throws IOException, FontFormatException {
+        frame = mainFrame;
+        AppTimer appTimer = new AppTimer(timeLabel,frame);
+        StandingOrderNextPanel.addMouseMotionListener(new MouseAction(appTimer));
+        appTimer.start();
         senderData = senderData1;
         receiverData = receiverData1;
         transferData = transferData1;
         senderAmount = Double.parseDouble(senderData.get("kontosrodki"));
-        frame = mainFrame;
         cancelPanel = standingOrderPanel;
         timeUnitsValid = false;
         setLabels();

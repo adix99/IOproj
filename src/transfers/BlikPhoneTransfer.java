@@ -1,6 +1,8 @@
 package transfers;
 
 import mainFrame.MainFrame;
+import timer.AppTimer;
+import timer.MouseAction;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -31,6 +33,8 @@ public class BlikPhoneTransfer implements Transfer{
     private JLabel receiverName2Label;
     private JPanel blikPhonePanel;
     private JLabel receiverName1Warning;
+    private JPanel timerPanel;
+    private JLabel timeLabel;
     private MainFrame frame;
     private Map<String,String> senderData;
     protected Map<String,String> receiverData;
@@ -50,6 +54,9 @@ public class BlikPhoneTransfer implements Transfer{
 
     public BlikPhoneTransfer(MainFrame mainFrame, Map<String, String> senderData1) {
         frame = mainFrame;
+        AppTimer appTimer = new AppTimer(timeLabel,frame);
+        blikPhonePanel.addMouseMotionListener(new MouseAction(appTimer));
+        appTimer.start();
         senderData = senderData1;
         senderAmount = Double.parseDouble(senderData.get("kontosrodki"));
         receiverData = new HashMap<>();

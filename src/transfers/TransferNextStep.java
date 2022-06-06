@@ -1,6 +1,8 @@
 package transfers;
 
 import mainFrame.MainFrame;
+import timer.AppTimer;
+import timer.MouseAction;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -43,12 +45,17 @@ public class TransferNextStep {
     private JLabel dateFrom;
     private JLabel dateToLabel;
     private JLabel dateTo;
+    private JPanel timerPanel;
+    private JLabel timeLabel;
     private String transferPanelTitle;
     private JPanel cancelPanel;
     private MainFrame frame;
 
     public TransferNextStep(MainFrame mainFrame, JPanel transferPanel, Map<String,String> senderData1, Map<String,String> receiverData1, Map<String,String> transferData1){
         frame = mainFrame;
+        AppTimer appTimer = new AppTimer(timeLabel,mainFrame);
+        transferNextStepPanel.addMouseMotionListener(new MouseAction(appTimer));
+        appTimer.start();
         cancelPanel = transferPanel;
         senderData = senderData1;
         this.receiverData = receiverData1;
