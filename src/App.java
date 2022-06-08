@@ -29,6 +29,6 @@ public class App {
         //MainPanel m = new MainPanel(new MainFrame());
         Statement st = Database.connectToDatabase("BankManager", "root", "Adix_23/09/1999");
         Database.addUser(st,"user2","user2pass","user9@gmail.com");
-
+//a
     }
 }
