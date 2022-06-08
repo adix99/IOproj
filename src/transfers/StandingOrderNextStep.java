@@ -138,6 +138,8 @@ public class StandingOrderNextStep {
                     }
                     if(!validation.contains(false)){
                         transferData.replace("typ","Zlecenie stałe "+"co "+timeUnitsTxt.getText()+" "+timeUnit);
+                        transferData.put("cykle",timeUnitsTxt.getText());
+                        transferData.put("jednostkaczasu",timeUnit);
                         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy");
                         transferData.put("startdata",formatter.format(dateChooserFrom.getDate()));
                         if(isEndDateSelected) transferData.put("enddata",formatter.format(dateChooserTo.getDate()));

@@ -1,5 +1,7 @@
 package transfers;
-
+import database.Database;
+import user.User;
+import database.DataBaseConnect;
 import mainFrame.MainFrame;
 import timer.AppTimer;
 import timer.MouseAction;
@@ -11,6 +13,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -46,8 +49,10 @@ public class TransferConfirm {
     private Map<String,String> receiverData;
     private Map<String,String> transferData;
     private PdfGenerator pdfGenerator;
+    private Statement st;
 
     public TransferConfirm(MainFrame mainFrame, JPanel transferNextStepPanel, Map<String,String> senderData1, Map<String,String>receiverData1, Map<String,String> transferData1){
+        st = DataBaseConnect.st;
         frame = mainFrame;
         AppTimer appTimer = new AppTimer(timeLabel,frame);
         transferConfirmPanel.addMouseMotionListener(new MouseAction(appTimer));
@@ -146,11 +151,33 @@ public class TransferConfirm {
                         appCodeWarning.setVisible(true);
                     }
                     else {
+                        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
+                        LocalDateTime now = LocalDateTime.now();
+                        String generationDate = dtf.format(now);
+                        String town, postCode,street,streetNumber;
+                        town = receiverData.getOrDefault("miejscowosc", "");
+                        postCode = receiverData.getOrDefault("kod pocztowy","");
+                        street = receiverData.getOrDefault("ulica","");
+                        streetNumber = receiverData.getOrDefault("nr domu","");
                         appCodeWarning.setVisible(false);
+                        if(transferPanelTitle.equals("Zlecenie stałe")){
+                            Database.addOutgoingHistoryOrdinary(st,"OutgoingHistoryOrdinary",generationDate,senderData.get("typ"),
+                                    senderData.get("nr konta"),receiverData.get("nr konta"),"",Double.parseDouble(transferData.get("kwota")),
+                                    transferData.get("waluta"),Double.parseDouble(transferData.get("kwotaPLN")),transferData.get("tytul"),
+                                    transferData.get("startdata"),transferData.get("enddata"),Integer.parseInt(transferData.get("cykle")),
+                                    transferData.get("jednostkaczasu"),receiverData.get("nazwa odbiorcy"),receiverData.get("nazwa odbiorcy cd"),
+                                    town,postCode,street,streetNumber);
+                        }
+                        else if(transferPanelTitle.equals("Przelew BLIK na telefon")){
+
+                        }
+                        else if(transferPanelTitle.equals("Przelew własny")){
+
+                        }
+                        else {
+
+                        }
                         if(isTransferConfirmation){
-                            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
-                            LocalDateTime now = LocalDateTime.now();
-                            String generationDate = dtf.format(now);
                             if(transferPanelTitle.equals("Zlecenie stałe")) {
                                 try {
                                     pdfGenerator = new PdfFactory(generationDate,senderData,receiverData,transferData).getPdfGenerator(PdfFactory.PdfType.ZLECENIESTALE);

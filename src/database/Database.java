@@ -15,9 +15,9 @@ public class Database {
             System.out.println(e);}
         return st;
     }
-    public static void addUser(Statement st, String username, String password, String email){
+    public static void addUser(Statement st, String username, String password, String email, String appCode){
         try {
-            st.executeUpdate("insert into Users values('"+username+"','"+password+"','"+email+"');");
+            st.executeUpdate("insert into Users values('"+username+"','"+password+"','"+email+"','"+appCode+"');");
         } catch (SQLException e) {
             //TODO: handle exception
             System.out.println("Couldn't execute the query");
